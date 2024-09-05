@@ -7,4 +7,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Communication/" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Throne.Shared\Throne.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
