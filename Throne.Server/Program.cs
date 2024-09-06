@@ -5,11 +5,10 @@ using Throne.Shared.Constants;
 using Throne.Shared.Logger;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Throne.Shared.Slots;
 using Throne.Server.Core.Memory;
+using Throne.Server.Core;
 
 namespace Throne.Server;
-
 
 class Program
 {
@@ -18,6 +17,8 @@ class Program
     var host = Host.CreateDefaultBuilder()
     .ConfigureServices(ConfigureServices)
     .Build();
+
+    ServiceLocator.ServiceProvider = host.Services;
 
     var websocketManager = host.Services.GetRequiredService<WebsocketManager>();
 
@@ -57,7 +58,6 @@ class Program
 
   static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
   {
-    services.AddSingleton(new Slots<WebSocketConnection>(Constants.MaxConnections));
     services.AddSingleton<MemoryManager>();
     services.AddSingleton<WebsocketManager>();
   }
