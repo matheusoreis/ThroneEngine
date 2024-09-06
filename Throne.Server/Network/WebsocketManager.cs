@@ -1,5 +1,4 @@
 using System.Net.WebSockets;
-using System.Reflection.Metadata;
 using Throne.Server.Communication.Outgoing.Messages;
 using Throne.Server.Core.Memory;
 using Throne.Shared.Logger;
@@ -14,6 +13,43 @@ public class WebsocketManager
   public WebsocketManager()
   {
     connections = MemoryManager.Instance.Connections;
+  }
+
+  public async Task HandleWebSocketConnection(HttpListenerWebSocketContext wsContext, string ip)
+  {
+    WebSocket webSocket = wsContext.WebSocket;
+    var receivedData = new List<byte>();
+
+    try
+    {
+      await WebSocketOpen(webSocket, ip);
+
+      var buffer = new byte[1024 * 4];
+      while (webSocket.State == WebSocketState.Open)
+      {
+        var segment = new ArraySegment<byte>(buffer);
+        WebSocketReceiveResult result = await webSocket.ReceiveAsync(segment, CancellationToken.None);
+
+        receivedData.AddRange(buffer.Take(result.Count));
+
+        if (result.EndOfMessage)
+        {
+          await WebSocketMessage(webSocket, receivedData.ToArray());
+          receivedData.Clear();
+        }
+
+        if (result.MessageType == WebSocketMessageType.Close)
+        {
+          await WebSocketClose(webSocket);
+          break;
+        }
+      }
+    }
+    catch (Exception ex)
+    {
+      Logger.Error($"Erro na comunicação WebSocket: {ex.Message}");
+      await WebSocketClose(webSocket);
+    }
   }
 
   public async Task WebSocketOpen(WebSocket webSocket, string ip)
@@ -35,15 +71,14 @@ public class WebsocketManager
   {
     var connection = GetConnectionBySocket(webSocket);
 
-    if (connection != null)
-    {
-      await connection.ProcessMessage(message);
-    }
-    else
+    if (connection == null)
     {
       Logger.Error("Connection not found for WebSocket.");
       await CleanupConnection(webSocket);
+      return;
     }
+
+    await connection.ProcessMessage(message);
   }
 
   public async Task WebSocketClose(WebSocket webSocket)
@@ -61,7 +96,7 @@ public class WebsocketManager
   {
     Logger.Info($"Server is full, disconnecting client: {ip}");
 
-    WebSocketConnection? webSocketConnection = new(webSocket, -1, ip);
+    WebSocketConnection webSocketConnection = new(webSocket, -1, ip);
 
     AlertData alertData = new()
     {
