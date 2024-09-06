@@ -13,7 +13,6 @@ public class WebsocketManager(MemoryManager memoryManager)
   public async Task HandleWebSocketConnection(HttpListenerWebSocketContext wsContext, string ip)
   {
     WebSocket webSocket = wsContext.WebSocket;
-
     var receivedData = new List<byte>();
 
     try
@@ -41,9 +40,8 @@ public class WebsocketManager(MemoryManager memoryManager)
         }
       }
     }
-    catch (Exception ex)
+    catch (Exception)
     {
-      Logger.Error($"Erro na comunicação WebSocket: {ex.Message}");
       await WebSocketClose(webSocket);
     }
   }
@@ -74,7 +72,15 @@ public class WebsocketManager(MemoryManager memoryManager)
       return;
     }
 
-    await connection.ProcessMessage(message);
+    try
+    {
+      await connection.ProcessMessage(message);
+    }
+    catch (Exception ex)
+    {
+      Logger.Error($"Error processing message: {ex.Message}");
+      await CleanupConnection(webSocket);
+    }
   }
 
   public async Task WebSocketClose(WebSocket webSocket)
@@ -121,6 +127,7 @@ public class WebsocketManager(MemoryManager memoryManager)
       }
     }
   }
+
 
   private WebSocketConnection? GetConnectionBySocket(WebSocket webSocket)
   {
