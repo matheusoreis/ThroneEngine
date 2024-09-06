@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "Us+68ygDlEgA03OkV5B0bc/w+PK0KKqImYvXEVQhfY0YQ+S6TR0iVg+/holen/Xg8laPiAOjiWQLdPEq2KKnKw==",
+  "success": true,
+  "projectFilePath": "/home/matheus/Documentos/GitHub/ThroneEngine/Throne.Shared/Throne.Shared.csproj",
+  "expectedPackageFiles": [
+    "/home/matheus/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
+    "/home/matheus/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.7/microsoft.aspnetcore.app.ref.8.0.7.nupkg.sha512"
+  ],
+  "logs": []
+}
