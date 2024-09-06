@@ -1,5 +1,3 @@
-using System;
-
 namespace Throne.Shared.Slots;
 
 public class Slots<T>(int size)
