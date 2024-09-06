@@ -16,13 +16,13 @@ public abstract class OutgoingMessage
     connections = MemoryManager.Instance.Connections;
   }
 
-  protected static void DataTo(WebSocketConnection connection, ServerMessage serverMessage)
+  protected static async Task DataTo(WebSocketConnection connection, ServerMessage serverMessage)
   {
     try
     {
       WebSocketMessageType webSocketType = WebSocketMessageType.Binary;
       CancellationToken tokenType = CancellationToken.None;
-      connection.WebSocket.SendAsync(serverMessage.GetBuffer(), webSocketType, true, tokenType).Wait();
+      await connection.WebSocket.SendAsync(serverMessage.GetBuffer(), webSocketType, true, tokenType);
     }
     catch (Exception e)
     {
@@ -30,7 +30,7 @@ public abstract class OutgoingMessage
     }
   }
 
-  protected void DataToAll(ServerMessage message)
+  protected async Task DataToAll(ServerMessage message)
   {
     foreach (var index in connections.GetFilledSlots())
     {
@@ -40,17 +40,17 @@ public abstract class OutgoingMessage
       {
         try
         {
-          DataTo(connection, message);
+          await DataTo(connection, message);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-          Logger.Error("Error sending data to the client! Error: " + ex.Message);
+          Logger.Error("Error sending data to the client! Error: " + e.Message);
         }
       }
     }
   }
 
-  protected void DataToAllExcept(WebSocketConnection exceptConnection, ServerMessage message)
+  protected async Task DataToAllExcept(WebSocketConnection exceptConnection, ServerMessage message)
   {
     foreach (var index in connections.GetFilledSlots())
     {
@@ -59,11 +59,11 @@ public abstract class OutgoingMessage
       {
         try
         {
-          DataTo(connection, message);
+          await DataTo(connection, message);
         }
-        catch (Exception ex)
+        catch (Exception e)
         {
-          Logger.Error("Error sending data to the client! Error: " + ex.Message);
+          Logger.Error("Error sending data to the client! Error: " + e.Message);
         }
       }
     }

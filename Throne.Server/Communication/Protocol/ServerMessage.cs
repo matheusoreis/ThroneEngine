@@ -44,19 +44,19 @@ public class ServerMessage : OutgoingMessage
     return buffer.GetBuffer();
   }
 
-  public void SendTo(WebSocketConnection connection)
+  public async Task SendTo(WebSocketConnection connection)
   {
-    DataTo(connection, this);
+    await DataTo(connection, this);
   }
 
-  public void SendToAll()
+  public async Task SendToAll()
   {
-    DataToAll(this);
+    await DataToAll(this);
   }
 
-  public void SendToAllExcept(WebSocketConnection exceptConnection)
+  public async Task SendToAllExcept(WebSocketConnection exceptConnection)
   {
-    DataToAllExcept(exceptConnection, this);
+    await DataToAllExcept(exceptConnection, this);
   }
 
 }

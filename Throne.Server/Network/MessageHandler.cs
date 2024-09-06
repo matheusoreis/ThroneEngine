@@ -1,4 +1,6 @@
+using System.Net.NetworkInformation;
 using Throne.Server.Communication.Incoming;
+using Throne.Server.Communication.Incoming.Requests;
 using Throne.Server.Communication.Protocol;
 using Throne.Shared.Communication;
 using Throne.Shared.Logger;
@@ -14,12 +16,14 @@ public class MessageHandler
     InitializeHandlers();
   }
 
-  public void ProcessMessage(WebSocketConnection connection, ClientMessage message)
+  public async Task ProcessMessage(WebSocketConnection connection, ClientMessage message)
   {
-    if (connection == null) return;
-    if (message == null) return;
+    if (connection == null || message == null)
+    {
+      return;
+    }
 
-    short messageId = message.GetId();
+    int messageId = message.GetId();
 
     if (Enum.IsDefined(typeof(ClientHeaders), messageId))
     {
@@ -29,7 +33,7 @@ public class MessageHandler
       {
         try
         {
-          handler.Handle(connection, message);
+          await handler.Handle(connection, message);
         }
         catch (Exception e)
         {
@@ -50,5 +54,8 @@ public class MessageHandler
     }
   }
 
-  private static void InitializeHandlers() { }
+  private void InitializeHandlers()
+  {
+    messageHandlers[ClientHeaders.Ping] = new PingRequest();
+  }
 }

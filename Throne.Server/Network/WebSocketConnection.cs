@@ -4,10 +4,12 @@ using Throne.Shared.Logger;
 
 namespace Throne.Server.Network;
 
-public class WebSocketConnection(WebSocket webSocket, int id)
+public class WebSocketConnection(WebSocket webSocket, int id, string ip)
 {
   public WebSocket WebSocket { get; } = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
   public int Id { get; } = id;
+
+  public string Ip { get; } = ip;
   private MessageHandler Handler { get; } = new();
 
   public async Task Close()
@@ -32,9 +34,9 @@ public class WebSocketConnection(WebSocket webSocket, int id)
 
   public bool IsOpen() => WebSocket.State == WebSocketState.Open;
 
-  public void ProcessMessage(byte[] buffer)
+  public async Task ProcessMessage(byte[] buffer)
   {
     var message = new ClientMessage(buffer);
-    Handler.ProcessMessage(this, message);
+    await Handler.ProcessMessage(this, message);
   }
 }
