@@ -3,6 +3,10 @@ using System.Net.WebSockets;
 using Throne.Server.Network;
 using Throne.Shared.Constants;
 using Throne.Shared.Logger;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Throne.Shared.Slots;
+using Throne.Server.Core.Memory;
 
 namespace Throne.Server;
 
@@ -11,13 +15,20 @@ class Program
 {
   static async Task Main()
   {
-    HttpListener httpListener = new();
+    var host = Host.CreateDefaultBuilder()
+    .ConfigureServices(ConfigureServices)
+    .Build();
+
+    var websocketManager = host.Services.GetRequiredService<WebsocketManager>();
+
+    var httpListener = new HttpListener();
+
     httpListener.Prefixes.Add($"http://{Constants.ServerHost}:{Constants.Port}/");
     httpListener.Start();
+
     Logger.Info($"Servidor WebSocket iniciado em ws://{Constants.ServerHost}:{Constants.Port}/");
     Logger.Info("Aguardando conexões...");
 
-    WebsocketManager websocketManager = new();
 
     while (true)
     {
@@ -42,5 +53,12 @@ class Program
         Logger.Error($"Erro ao aceitar conexão: {e.Message}");
       }
     }
+  }
+
+  static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+  {
+    services.AddSingleton(new Slots<WebSocketConnection>(Constants.MaxConnections));
+    services.AddSingleton<MemoryManager>();
+    services.AddSingleton<WebsocketManager>();
   }
 }

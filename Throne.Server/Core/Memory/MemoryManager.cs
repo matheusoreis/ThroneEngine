@@ -1,18 +1,10 @@
 using Throne.Server.Network;
-using Throne.Shared.Constants;
 using Throne.Shared.Slots;
 
-namespace Throne.Server.Core.Memory;
-
-public class MemoryManager
+namespace Throne.Server.Core.Memory
 {
-  private static readonly Lazy<MemoryManager> instance = new(() => new MemoryManager());
-  public static MemoryManager Instance => instance.Value;
-
-  public Slots<WebSocketConnection> Connections { get; }
-
-  private MemoryManager()
+  public class MemoryManager(Slots<WebSocketConnection> connections)
   {
-    Connections = new Slots<WebSocketConnection>(Constants.MaxConnections);
+    public Slots<WebSocketConnection> Connections { get; } = connections;
   }
 }

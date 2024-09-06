@@ -6,18 +6,14 @@ using Throne.Shared.Slots;
 
 namespace Throne.Server.Network;
 
-public class WebsocketManager
+public class WebsocketManager(MemoryManager memoryManager)
 {
-  private readonly Slots<WebSocketConnection> connections;
-
-  public WebsocketManager()
-  {
-    connections = MemoryManager.Instance.Connections;
-  }
+  private readonly Slots<WebSocketConnection> connections = memoryManager.Connections;
 
   public async Task HandleWebSocketConnection(HttpListenerWebSocketContext wsContext, string ip)
   {
     WebSocket webSocket = wsContext.WebSocket;
+
     var receivedData = new List<byte>();
 
     try

@@ -2,16 +2,10 @@ namespace Throne.Shared.Logger;
 
 public sealed class Logger
 {
-  private static readonly Lazy<Logger> _instance = new(() => new Logger());
-
   private const int GREEN = 32;
   private const int YELLOW = 33;
   private const int BLUE = 34;
   private const int RED = 31;
-
-  private Logger() { }
-
-  public static Logger Instance => _instance.Value;
 
   private static string GetTimestamp()
   {
