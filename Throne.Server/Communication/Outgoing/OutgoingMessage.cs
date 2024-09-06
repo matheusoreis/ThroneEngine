@@ -1,5 +1,7 @@
 using System.Net.WebSockets;
+using Microsoft.Extensions.DependencyInjection;
 using Throne.Server.Communication.Protocol;
+using Throne.Server.Core;
 using Throne.Server.Core.Memory;
 using Throne.Server.Network;
 using Throne.Shared.Logger;
@@ -13,7 +15,8 @@ public abstract class OutgoingMessage
 
   protected OutgoingMessage()
   {
-    connections = MemoryManager.Instance.Connections;
+    MemoryManager? memoryManager = (ServiceLocator.ServiceProvider?.GetRequiredService<MemoryManager>()) ?? throw new InvalidOperationException("MemoryManager is not registered in the ServiceLocator.");
+    connections = memoryManager.Connections;
   }
 
   protected static async Task DataTo(WebSocketConnection connection, ServerMessage serverMessage)
