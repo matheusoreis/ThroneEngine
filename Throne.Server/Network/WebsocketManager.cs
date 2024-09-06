@@ -13,16 +13,17 @@ public class WebsocketManager(MemoryManager memoryManager)
   public async Task HandleWebSocketConnection(HttpListenerWebSocketContext wsContext, string ip)
   {
     WebSocket webSocket = wsContext.WebSocket;
-    var receivedData = new List<byte>();
+    List<byte>? receivedData = [];
 
     try
     {
+      Logger.Info($"Nova conexão WebSocket aberta com IP: {ip}");
       await WebSocketOpen(webSocket, ip);
 
-      var buffer = new byte[1024 * 4];
+      byte[]? buffer = new byte[1024 * 4];
       while (webSocket.State == WebSocketState.Open)
       {
-        var segment = new ArraySegment<byte>(buffer);
+        ArraySegment<byte> segment = new(buffer);
         WebSocketReceiveResult result = await webSocket.ReceiveAsync(segment, CancellationToken.None);
 
         receivedData.AddRange(buffer.Take(result.Count));
@@ -35,6 +36,7 @@ public class WebsocketManager(MemoryManager memoryManager)
 
         if (result.MessageType == WebSocketMessageType.Close)
         {
+          Logger.Info($"Conexão WebSocket com {ip} solicitou fechamento.");
           await WebSocketClose(webSocket);
           break;
         }
@@ -52,13 +54,14 @@ public class WebsocketManager(MemoryManager memoryManager)
 
     if (connectionId == null)
     {
+      Logger.Warning($"Servidor cheio, não há slots disponíveis para {ip}");
       await HandleFullServer(webSocket, ip);
       return;
     }
 
-    var connection = new WebSocketConnection(webSocket, connectionId.Value, ip);
+    WebSocketConnection? connection = new(webSocket, connectionId.Value, ip);
     connections.Add(connection);
-    Logger.Info($"New connection from: {ip}");
+    Logger.Info($"Conexão estabelecida com {ip}, ID da conexão: {connectionId.Value}");
   }
 
   public async Task WebSocketMessage(WebSocket webSocket, byte[] message)
@@ -67,7 +70,7 @@ public class WebsocketManager(MemoryManager memoryManager)
 
     if (connection == null)
     {
-      Logger.Error("Connection not found for WebSocket.");
+      Logger.Error("WebSocket não encontrado para a conexão, limpando a conexão.");
       await CleanupConnection(webSocket);
       return;
     }
@@ -78,7 +81,7 @@ public class WebsocketManager(MemoryManager memoryManager)
     }
     catch (Exception ex)
     {
-      Logger.Error($"Error processing message: {ex.Message}");
+      Logger.Error($"Erro ao processar a mensagem para o IP {connection.Ip}: {ex.Message}");
       await CleanupConnection(webSocket);
     }
   }
@@ -89,21 +92,21 @@ public class WebsocketManager(MemoryManager memoryManager)
 
     if (connection != null)
     {
-      Logger.Info($"Connection closed, address: {connection.Ip}");
+      Logger.Info($"Fechando conexão com IP: {connection.Ip}, ID da conexão: {connection.Id}");
       await CleanupConnection(webSocket);
     }
   }
 
   private async Task HandleFullServer(WebSocket webSocket, string ip)
   {
-    Logger.Info($"Server is full, disconnecting client: {ip}");
+    Logger.Info($"Servidor está cheio, desconectando o IP: {ip}");
 
     WebSocketConnection webSocketConnection = new(webSocket, -1, ip);
 
     AlertData alertData = new()
     {
       Type = AlertType.Info,
-      Message = "Server is full! disconnecting..."
+      Message = "O servidor está cheio, desconectando..."
     };
 
     AlertMessage alertMessage = new(alertData);
@@ -119,7 +122,7 @@ public class WebsocketManager(MemoryManager memoryManager)
     if (connection != null)
     {
       connections.Remove(connection.Id);
-      Logger.Info($"Connection removed, address: {connection.Id}");
+      Logger.Info($"Conexão removida com IP {connection.Ip}, ID da conexão: {connection.Id}");
 
       if (connection.IsOpen())
       {

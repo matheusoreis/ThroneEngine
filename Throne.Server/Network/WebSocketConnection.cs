@@ -1,6 +1,5 @@
 using System.Net.WebSockets;
 using Throne.Server.Communication.Protocol;
-using Throne.Server.Core.Memory;
 using Throne.Shared.Logger;
 
 namespace Throne.Server.Network;
@@ -9,7 +8,6 @@ public class WebSocketConnection(WebSocket webSocket, int id, string ip)
 {
   public WebSocket WebSocket { get; } = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
   public int Id { get; } = id;
-
   public string Ip { get; } = ip;
   private MessageHandler Handler { get; } = new();
 
@@ -20,16 +18,15 @@ public class WebSocketConnection(WebSocket webSocket, int id, string ip)
       try
       {
         await WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing connection", CancellationToken.None);
-        Logger.Info($"Connection with ID {Id} closed successfully.");
       }
       catch (Exception ex)
       {
-        Logger.Error($"Error closing connection with ID {Id}: {ex.Message}");
+        Logger.Error($"Erro ao fechar a conexão com o IP {Ip}, ID da conexão: {Id}. Erro: {ex}");
       }
     }
     else
     {
-      Logger.Error($"Attempted to close connection with ID {Id}, but WebSocket is not open.");
+      Logger.Warning($"Erro ao fechar conexão, o WebSocket não está aberto. Estado atual: {WebSocket.State}");
     }
   }
 

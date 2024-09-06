@@ -15,7 +15,13 @@ public abstract class OutgoingMessage
 
   protected OutgoingMessage()
   {
-    MemoryManager? memoryManager = (ServiceLocator.ServiceProvider?.GetRequiredService<MemoryManager>()) ?? throw new InvalidOperationException("MemoryManager is not registered in the ServiceLocator.");
+    IServiceProvider? serviceProvider = ServiceLocator.ServiceProvider;
+    if (serviceProvider == null)
+    {
+      throw new InvalidOperationException("ServiceProvider is not initialized.");
+    }
+
+    MemoryManager? memoryManager = serviceProvider.GetRequiredService<MemoryManager>();
     connections = memoryManager.Connections;
   }
 

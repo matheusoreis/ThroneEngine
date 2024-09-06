@@ -22,6 +22,7 @@ public class MessageHandler
   {
     if (connection == null || message == null)
     {
+      Logger.Warning("Conexão ou mensagem nula recebida ao tentar processar a mensagem.");
       return;
     }
 
@@ -39,19 +40,19 @@ public class MessageHandler
         }
         catch (Exception e)
         {
-          Logger.Error($"Error handling {handler.GetType().Name}: {e}");
+          Logger.Error($"Erro ao processar a mensagem com header {header}: {e}");
           _ = connection.Close();
         }
       }
       else
       {
-        Logger.Error($"No handler for id: {header}");
+        Logger.Warning($"Nenhum handler encontrado para o header: {header}.");
         _ = connection.Close();
       }
     }
     else
     {
-      Logger.Error($"Invalid message ID: {messageId}");
+      Logger.Error($"ID de mensagem inválido recebido: {messageId}.");
       _ = connection.Close();
     }
   }

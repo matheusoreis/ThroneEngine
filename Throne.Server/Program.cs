@@ -14,22 +14,27 @@ class Program
 {
   static async Task Main()
   {
-    var host = Host.CreateDefaultBuilder()
+    Logger.Info($"Iniciando o servidor Throne...");
+
+    IHost? host = Host.CreateDefaultBuilder()
     .ConfigureServices(ConfigureServices)
     .Build();
 
     ServiceLocator.ServiceProvider = host.Services;
 
-    var websocketManager = host.Services.GetRequiredService<WebsocketManager>();
+    Logger.Info($"Configurando o gerenciador de WebSocket...");
+    WebsocketManager websocketManager = ServiceLocator.ServiceProvider.GetRequiredService<WebsocketManager>();
+    HttpListener? httpListener = new();
 
-    var httpListener = new HttpListener();
-
+    Logger.Info($"Iniciando o HttpListener...");
     httpListener.Prefixes.Add($"http://{Constants.ServerHost}:{Constants.Port}/");
     httpListener.Start();
 
-    Logger.Info($"Servidor WebSocket iniciado em ws://{Constants.ServerHost}:{Constants.Port}/");
-    Logger.Info("Aguardando conexões...");
+    Logger.Info($"Servidor WebSocket iniciado com sucesso!");
+    Logger.Info($"Endereço de conexão WebSocket: ws://{Constants.ServerHost}/");
+    Logger.Info($"Porta: {Constants.Port}");
 
+    Logger.Info("Aguardando por novas conexões.");
 
     while (true)
     {
@@ -46,19 +51,22 @@ class Program
 
         string ip = context.Request.RemoteEndPoint?.Address.ToString() ?? "Unknown";
         HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null);
+        Logger.Info($"Nova conexão WebSocket recebida de {ip}");
 
         _ = websocketManager.HandleWebSocketConnection(wsContext, ip);
       }
       catch (Exception e)
       {
-        Logger.Error($"Erro ao aceitar conexão: {e.Message}");
+        Logger.Error($"Erro ao aceitar conexão WebSocket: {e.Message}");
       }
     }
   }
 
   static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
   {
+    Logger.Info("Registrando dependências...");
     services.AddSingleton<MemoryManager>();
     services.AddSingleton<WebsocketManager>();
+    Logger.Info("Dependências registradas com sucesso.");
   }
 }
