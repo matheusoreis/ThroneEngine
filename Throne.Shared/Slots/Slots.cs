@@ -2,7 +2,7 @@ namespace Throne.Shared.Slots;
 
 public class Slots<T>(int size)
 {
-  private readonly List<T?> _slots = new List<T?>(new T?[size]);
+  private readonly List<T?> _slots = new(new T?[size]);
 
   private void CheckIndex(int index)
   {
