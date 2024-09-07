@@ -30,7 +30,7 @@ public class WebsocketManager(MemoryManager memoryManager)
 
         if (result.EndOfMessage)
         {
-          await WebSocketMessage(webSocket, receivedData.ToArray());
+          await WebSocketMessage(webSocket, [.. receivedData]);
           receivedData.Clear();
         }
 
@@ -77,6 +77,11 @@ public class WebsocketManager(MemoryManager memoryManager)
 
     try
     {
+      if (!connection.IsOpen())
+      {
+        return;
+      }
+
       await connection.ProcessMessage(message);
     }
     catch (Exception ex)
