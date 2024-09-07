@@ -7,17 +7,13 @@ public class Database
 {
   private NpgsqlConnection? connection;
   private readonly string connectionString;
-  private readonly string host = "127.0.0.1";
-  private readonly string username = "postgres";
-  private readonly string password = "postgres";
-  private readonly string database = "";
 
   public Database()
   {
-    connectionString = $"Host={host};Username={username};Password={password};Database={database};";
+    connectionString = "Host=127.0.0.1;Username=postgres;Password=postgres;Database=throne;";
   }
 
-  private async Task OpenConnection()
+  private async Task OpenConnectionAsync()
   {
     if (connection == null || connection.State == ConnectionState.Closed)
     {
@@ -26,45 +22,54 @@ public class Database
     }
   }
 
-  public async Task CloseConnection()
+  public async Task CloseConnectionAsync()
   {
     if (connection != null && connection.State == ConnectionState.Open)
     {
       await connection.CloseAsync();
       await connection.DisposeAsync();
+      connection = null;
     }
   }
 
   public async Task<List<T>> ExecutarConsultaAsync<T>(string query, Func<IDataReader, T> map, params NpgsqlParameter[] parameters)
   {
-    await OpenConnection();
+    await OpenConnectionAsync();
 
     using (var cmd = new NpgsqlCommand(query, connection))
     {
-      if (parameters != null)
+      if (parameters.Length > 0)
       {
         cmd.Parameters.AddRange(parameters);
       }
 
-      using (var reader = await cmd.ExecuteReaderAsync())
+      var results = new List<T>();
+      try
       {
-        var results = new List<T>();
-        while (await reader.ReadAsync())
+        using (var reader = await cmd.ExecuteReaderAsync())
         {
-          results.Add(map(reader));
+          while (await reader.ReadAsync())
+          {
+            results.Add(map(reader));
+          }
         }
-        return results;
       }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Erro ao executar a consulta: {ex.Message}");
+      }
+
+      return results;
     }
   }
 
   public async Task<int> ExecutarAtualizacaoAsync(string query, params NpgsqlParameter[] parameters)
   {
-    await OpenConnection();
+    await OpenConnectionAsync();
 
     using (var cmd = new NpgsqlCommand(query, connection))
     {
-      if (parameters != null)
+      if (parameters.Length > 0)
       {
         cmd.Parameters.AddRange(parameters);
       }
@@ -83,13 +88,13 @@ public class Database
 
   public async Task ExecutarProcedureAsync(string procedureName, params NpgsqlParameter[] parameters)
   {
-    await OpenConnection();
+    await OpenConnectionAsync();
 
     using (var cmd = new NpgsqlCommand(procedureName, connection))
     {
       cmd.CommandType = CommandType.StoredProcedure;
 
-      if (parameters != null)
+      if (parameters.Length > 0)
       {
         cmd.Parameters.AddRange(parameters);
       }
@@ -107,13 +112,13 @@ public class Database
 
   public async Task<T?> ExecutarFunctionAsync<T>(string functionName, params NpgsqlParameter[] parameters)
   {
-    await OpenConnection();
+    await OpenConnectionAsync();
 
     using (var cmd = new NpgsqlCommand(functionName, connection))
     {
-      cmd.CommandType = CommandType.StoredProcedure;
+      cmd.CommandType = CommandType.Text;
 
-      if (parameters != null)
+      if (parameters.Length > 0)
       {
         cmd.Parameters.AddRange(parameters);
       }
@@ -136,5 +141,4 @@ public class Database
       }
     }
   }
-
 }
