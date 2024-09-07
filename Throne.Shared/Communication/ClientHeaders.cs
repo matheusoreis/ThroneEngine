@@ -3,7 +3,7 @@ namespace Throne.Shared.Communication;
 public enum ClientHeaders
 {
   Ping,
-  AccessAccount,
+  SignIn,
   CreateAccount,
   DeleteAccount,
   RecoverAccount,
