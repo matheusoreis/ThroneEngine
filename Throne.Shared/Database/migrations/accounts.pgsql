@@ -1,0 +1,35 @@
+CREATE TABLE "Accounts" (
+	"id" SERIAL NOT NULL UNIQUE,
+	"email" VARCHAR NOT NULL UNIQUE,
+	"password" VARCHAR NOT NULL,
+	"character_count" INTEGER DEFAULT 2,
+	"is_admin" BOOLEAN DEFAULT FALSE,
+	"is_vip" BOOLEAN DEFAULT FALSE,
+	"coins" INTEGER DEFAULT 0,
+	"character_id" INTEGER,
+	PRIMARY KEY("id")
+);
+
+
+CREATE TABLE "Characters" (
+	"id" SERIAL NOT NULL UNIQUE,
+	"name" VARCHAR NOT NULL UNIQUE,
+	"color" VARCHAR NOT NULL DEFAULT '#ffffff',
+	"gender_id" INTEGER,
+	PRIMARY KEY("id")
+);
+
+
+CREATE TABLE "Genders" (
+	"id" SERIAL NOT NULL UNIQUE,
+	"name" VARCHAR NOT NULL UNIQUE,
+	PRIMARY KEY("id")
+);
+
+
+ALTER TABLE "Accounts"
+ADD FOREIGN KEY("character_id") REFERENCES "Characters"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
+ALTER TABLE "Characters"
+ADD FOREIGN KEY("gender_id") REFERENCES "Genders"("id")
+ON UPDATE NO ACTION ON DELETE NO ACTION;
