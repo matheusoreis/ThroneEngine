@@ -1,8 +1,0 @@
-using System;
-
-namespace Throne.Server.Communication.Incoming.Requests;
-
-public class SignInRequest
-{
-
-}
