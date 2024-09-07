@@ -60,5 +60,6 @@ public class MessageHandler
   private void InitializeHandlers()
   {
     messageHandlers[ClientHeaders.Ping] = new PingRequest();
+    messageHandlers[ClientHeaders.SignIn] = new SignInRequest();
   }
 }
