@@ -14,6 +14,8 @@ public class WebsocketManager(MemoryManager memoryManager)
   {
     WebSocket webSocket = wsContext.WebSocket;
     List<byte>? receivedData = [];
+    var cancellationTokenSource = new CancellationTokenSource();
+    var cancellationToken = cancellationTokenSource.Token;
 
     try
     {
@@ -24,27 +26,48 @@ public class WebsocketManager(MemoryManager memoryManager)
       while (webSocket.State == WebSocketState.Open)
       {
         ArraySegment<byte> segment = new(buffer);
-        WebSocketReceiveResult result = await webSocket.ReceiveAsync(segment, CancellationToken.None);
-
-        receivedData.AddRange(buffer.Take(result.Count));
-
-        if (result.EndOfMessage)
+        try
         {
-          await WebSocketMessage(webSocket, [.. receivedData]);
-          receivedData.Clear();
+          WebSocketReceiveResult result = await webSocket.ReceiveAsync(segment, cancellationToken);
+          receivedData.AddRange(buffer.Take(result.Count));
+
+          if (result.MessageType == WebSocketMessageType.Close)
+          {
+            Logger.Info($"Conexão WebSocket com {ip} solicitou fechamento.");
+            await WebSocketClose(webSocket);
+            break;
+          }
+
+          if (result.EndOfMessage)
+          {
+            await WebSocketMessage(webSocket, receivedData.ToArray());
+            receivedData.Clear();
+          }
         }
-
-        if (result.MessageType == WebSocketMessageType.Close)
+        catch (WebSocketException ex) when (ex.WebSocketErrorCode == WebSocketError.ConnectionClosedPrematurely)
         {
-          Logger.Info($"Conexão WebSocket com {ip} solicitou fechamento.");
-          await WebSocketClose(webSocket);
+          Logger.Warning($"Conexão WebSocket com {ip} foi fechada abruptamente.");
+          break;
+        }
+        catch (WebSocketException ex)
+        {
+          Logger.Error($"WebSocketException durante a recepção de dados de {ip}: {ex.Message}");
+          break;
+        }
+        catch (Exception ex)
+        {
+          Logger.Error($"Erro inesperado durante a recepção de dados de {ip}: {ex.Message}");
           break;
         }
       }
     }
-    catch (Exception)
+    catch (Exception ex)
     {
-      await WebSocketClose(webSocket);
+      Logger.Error($"Erro inesperado ao lidar com a conexão WebSocket com {ip}: {ex.Message}");
+    }
+    finally
+    {
+      await CleanupConnection(webSocket);
     }
   }
 
@@ -68,19 +91,11 @@ public class WebsocketManager(MemoryManager memoryManager)
   {
     var connection = GetConnectionBySocket(webSocket);
 
-    if (connection == null)
-    {
-      Logger.Error("WebSocket não encontrado para a conexão, limpando a conexão.");
-      await CleanupConnection(webSocket);
-      return;
-    }
+    if (connection == null) return;
 
     try
     {
-      if (!connection.IsOpen())
-      {
-        return;
-      }
+      if (!connection.IsOpen()) return;
 
       await connection.ProcessMessage(message);
     }
@@ -91,16 +106,30 @@ public class WebsocketManager(MemoryManager memoryManager)
     }
   }
 
+
   public async Task WebSocketClose(WebSocket webSocket)
   {
-    var connection = GetConnectionBySocket(webSocket);
-
-    if (connection != null)
+    try
     {
-      Logger.Info($"Fechando conexão com IP: {connection.Ip}, ID da conexão: {connection.Id}");
-      await CleanupConnection(webSocket);
+      var connection = GetConnectionBySocket(webSocket);
+
+      if (connection != null)
+      {
+        Logger.Info($"Fechando conexão com IP: {connection.Ip}, ID da conexão: {connection.Id}");
+        await CleanupConnection(webSocket);
+      }
+    }
+    catch (WebSocketException ex)
+    {
+      Logger.Error($"WebSocketException ao fechar a conexão: {ex.Message}");
+    }
+    catch (Exception ex)
+    {
+      Logger.Error($"Erro inesperado ao fechar a conexão: {ex.Message}");
     }
   }
+
+
 
   private async Task HandleFullServer(WebSocket webSocket, string ip)
   {
@@ -117,8 +146,8 @@ public class WebsocketManager(MemoryManager memoryManager)
     AlertMessage alertMessage = new(alertData);
 
     await alertMessage.SendTo(webSocketConnection);
-    await CleanupConnection(webSocket);
   }
+
 
   private async Task CleanupConnection(WebSocket webSocket)
   {
@@ -131,11 +160,21 @@ public class WebsocketManager(MemoryManager memoryManager)
 
       if (connection.IsOpen())
       {
-        await connection.Close();
+        try
+        {
+          await connection.Close();
+        }
+        catch (WebSocketException ex)
+        {
+          Logger.Error($"WebSocketException ao fechar a conexão com IP {connection.Ip}, ID da conexão {connection.Id}: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+          Logger.Error($"Erro ao fechar a conexão com IP {connection.Ip}, ID da conexão {connection.Id}: {ex.Message}");
+        }
       }
     }
   }
-
 
   private WebSocketConnection? GetConnectionBySocket(WebSocket webSocket)
   {
