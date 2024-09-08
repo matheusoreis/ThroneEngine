@@ -5,7 +5,6 @@ public enum ClientHeaders
   Ping,
   SignIn,
   SignUp,
-  CreateAccount,
   DeleteAccount,
   RecoverAccount,
   CharList,

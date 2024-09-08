@@ -53,5 +53,6 @@ public class WsHandler
         messageHandlers[ClientHeaders.Ping] = new PingRequest();
         messageHandlers[ClientHeaders.SignIn] = new SignInRequest();
         messageHandlers[ClientHeaders.SignUp] = new SignUpRequest();
+        messageHandlers[ClientHeaders.CharList] = new CharListRequest();
     }
 }

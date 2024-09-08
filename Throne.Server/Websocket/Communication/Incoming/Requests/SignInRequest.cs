@@ -44,19 +44,19 @@ public class SignInRequest : IIncoming
         try
         {
             const string checkEmailQuery = "SELECT check_email_exists(@p_email)";
-            var emailExistsParameters = new[]
-            {
+            NpgsqlParameter[] emailExistsParameters =
+            [
                 new NpgsqlParameter("@p_email", email)
-            };
+            ];
 
             bool emailExists = await database.ExecuteFunction<bool>(checkEmailQuery, emailExistsParameters);
             if (emailExists)
             {
                 const string getPasswordQuery = "SELECT id, password FROM accounts WHERE email = @p_email";
-                var passwordParameters = new[]
-                {
+                NpgsqlParameter[] passwordParameters =
+                [
                     new NpgsqlParameter("@p_email", email)
-                };
+                ];
 
                 List<AccountInfo> accountInfos = await database.RunQuery(getPasswordQuery, reader => new AccountInfo
                 {
@@ -64,12 +64,12 @@ public class SignInRequest : IIncoming
                     Password = reader.GetString(reader.GetOrdinal("password"))
                 }, passwordParameters);
 
-                var accountInfo = accountInfos.FirstOrDefault();
+                AccountInfo? accountInfo = accountInfos.FirstOrDefault();
 
                 if (accountInfo != null && BC.Verify(password, accountInfo.Password))
                 {
                     await SendAlert(connection, AlertType.Info, "Login bem-sucedido!");
-                    var signInMessage = new SignInMessage(accountInfo.Id);
+                    SignInMessage signInMessage = new SignInMessage(accountInfo.Id);
                     await signInMessage.SendTo(connection);
                 }
                 else
@@ -94,13 +94,13 @@ public class SignInRequest : IIncoming
     
     private static async Task SendAlert(WSConnection connection, AlertType type, string message)
     {
-        AlertData alertData = new AlertData
+        AlertData alertData = new()
         {
             Type = type,
             Message = message
         };
 
-        AlertMessage alertMessage = new AlertMessage(alertData);
+        AlertMessage alertMessage = new(alertData);
         await alertMessage.SendTo(connection);
     }
 }

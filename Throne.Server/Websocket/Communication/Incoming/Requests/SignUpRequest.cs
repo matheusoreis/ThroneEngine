@@ -61,17 +61,15 @@ public class SignUpRequest : IIncoming
         try
         {
             string hashPassword = BC.HashPassword(password);
-            
+
             NpgsqlParameter[] parameters =
             [
                 new NpgsqlParameter("@p_email", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = email },
                 new NpgsqlParameter("@p_password", NpgsqlTypes.NpgsqlDbType.Varchar) { Value = hashPassword },
                 new NpgsqlParameter("@p_character_count", NpgsqlTypes.NpgsqlDbType.Integer) { Value = 2 },
-                new NpgsqlParameter("@p_role_id", NpgsqlTypes.NpgsqlDbType.Integer) { Value = 1 },
                 new NpgsqlParameter("@p_coins", NpgsqlTypes.NpgsqlDbType.Integer) { Value = 0 },
-                new NpgsqlParameter("@p_character_id", NpgsqlTypes.NpgsqlDbType.Integer) { Value = DBNull.Value }
             ];
-            
+
             await database.ExecuteProcedure("insert_account", parameters);
 
             AlertData successAlertData = new()
@@ -93,6 +91,10 @@ public class SignUpRequest : IIncoming
 
             AlertMessage errorAlertMessage = new(errorAlertData);
             await errorAlertMessage.SendTo(connection);
+        }
+        finally
+        {
+            await database.CloseConnection();
         }
     }
 }
