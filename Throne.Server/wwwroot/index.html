@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site HTML</title>
+  <script src="https://unpkg.com/htmx.org@1.8.6/dist/htmx.min.js"></script>
+</head>
+
+<body>
+  <h1>HTMX</h1>
+
+  <!-- Input para o token -->
+  <input type="text" id="tokenInput" placeholder="Enter JWT Token" />
+
+  <!-- Botão para gerar o token -->
+  <button hx-post="/api/token" hx-trigger="click" hx-target="#response" hx-swap="innerHTML">
+    Gerar Token
+  </button>
+
+  <!-- Botão para pegar o componente -->
+  <button hx-get="/api/hello" hx-trigger="click" hx-target="#response"
+    hx-headers='{"Authorization": "Bearer " + document.getElementById("tokenInput").value}'>
+    Pegar componente
+  </button>
+
+  <div id="response"></div>
+</body>
+
+</html>
