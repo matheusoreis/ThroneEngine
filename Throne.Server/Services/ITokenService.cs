@@ -4,5 +4,5 @@ namespace Throne.Server.Services;
 
 public interface ITokenService
 {
-  string GenerateToken(SignIn user);
+    Task<string> GenerateToken(SignIn user);
 }

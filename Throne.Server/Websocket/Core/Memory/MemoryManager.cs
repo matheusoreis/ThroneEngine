@@ -5,5 +5,5 @@ namespace Throne.Server.Websocket.Core.Memory;
 
 public class MemoryManager : IMemoryManager
 {
-  public Slots<WSConnection> Connections { get; } = new Slots<WSConnection>(Constants.MaxConnections);
+    public Slots<WSConnection> Connections { get; } = new(Constants.MaxConnections);
 }

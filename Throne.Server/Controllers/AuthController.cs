@@ -4,55 +4,39 @@ using Microsoft.IdentityModel.Tokens;
 using Throne.Server.Models;
 using Throne.Server.Services;
 
-namespace Throne.Server.Controllers
+namespace Throne.Server.Controllers;
+
+[Route("api/[controller]")]
+[ApiController]
+public class AuthController(ITokenService tokenService, IUserService userService) : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AuthController : ControllerBase
+    [HttpPost("register")]
+    public async Task<IActionResult> Register([FromBody] SignUp model)
     {
-        private readonly ITokenService tokenService;
-        private readonly IUserService userService;
+        bool result = await userService.SignUp(model.Username ?? "a", model.Password ?? "b");
+        if (result) return Ok("User registered successfully.");
+        return BadRequest("User already exists.");
+    }
 
-        public AuthController(ITokenService tokenService, IUserService userService)
-        {
-            this.tokenService = tokenService;
-            this.userService = userService;
-        }
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] SignIn model)
+    {
+        string? token = await tokenService.GenerateToken(model);
 
-        [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody] SignUp model)
-        {
-            var result = await userService.SignUp(model.Username ?? "a", model.Password ?? "b");
-            if (result)
-            {
-                return Ok("User registered successfully.");
-            }
-            return BadRequest("User already exists.");
-        }
+        return Ok(token);
 
-        [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] SignIn model)
-        {
-            string? token = tokenService.GenerateToken(model);
+        // if (token.IsNullOrEmpty()) return Unauthorized();
+        //
+        // bool result = await userService.SignIn(model.Email ?? "a", model.Password ?? "b");
+        // if (result) return Ok(new { Token = token });
+        //
+        // return Unauthorized("Invalid credentials.");
+    }
 
-            if (token == null || token.IsNullOrEmpty()) return Unauthorized();
-
-
-            bool result = await userService.SignIn(model.Username ?? "a", model.Password ?? "b");
-            if (result == true)
-            {
-                return Ok(new { Token = token });
-            }
-
-            return Unauthorized("Invalid credentials.");
-        }
-
-        [HttpGet("secure-data")]
-        [Authorize]
-        public IActionResult GetSecureData()
-        {
-            return Ok(new { Message = "This is protected data." });
-        }
-
+    [HttpGet("secure-data")]
+    [Authorize]
+    public IActionResult GetSecureData()
+    {
+        return Ok(new { Message = "This is protected data." });
     }
 }

@@ -8,55 +8,55 @@ namespace Throne.Server.Websocket;
 
 public class WSHandler
 {
-  private readonly Dictionary<ClientHeaders, IIncoming> messageHandlers = [];
+    private readonly Dictionary<ClientHeaders, IIncoming> messageHandlers = [];
 
-  public WSHandler()
-  {
-    InitializeHandlers();
-  }
-
-  public async Task ProcessMessage(WSConnection connection, ClientMessage message)
-  {
-    if (connection == null || message == null)
+    public WSHandler()
     {
-      Logger.Warning("Conexão ou mensagem nula recebida ao tentar processar a mensagem.");
-      return;
+        InitializeHandlers();
     }
 
-    int messageId = message.GetId();
-
-    if (Enum.IsDefined(typeof(ClientHeaders), messageId))
+    public async Task ProcessMessage(WSConnection connection, ClientMessage message)
     {
-      ClientHeaders header = (ClientHeaders)messageId;
-
-      if (messageHandlers.TryGetValue(header, out var handler))
-      {
-        try
+        if (connection == null || message == null)
         {
-          await handler.Handle(connection, message);
+            Logger.Warning("Conexão ou mensagem nula recebida ao tentar processar a mensagem.");
+            return;
         }
-        catch (Exception e)
-        {
-          Logger.Error($"Erro ao processar a mensagem com header {header}: {e}");
-          _ = connection.Close();
-        }
-      }
-      else
-      {
-        Logger.Warning($"Nenhum handler encontrado para o header: {header}.");
-        _ = connection.Close();
-      }
-    }
-    else
-    {
-      Logger.Error($"ID de mensagem inválido recebido: {messageId}.");
-      _ = connection.Close();
-    }
-  }
 
-  private void InitializeHandlers()
-  {
-    messageHandlers[ClientHeaders.Ping] = new PingRequest();
-    messageHandlers[ClientHeaders.SignIn] = new SignInRequest();
-  }
+        int messageId = message.GetId();
+
+        if (Enum.IsDefined(typeof(ClientHeaders), messageId))
+        {
+            ClientHeaders header = (ClientHeaders)messageId;
+
+            if (messageHandlers.TryGetValue(header, out IIncoming? handler))
+            {
+                try
+                {
+                    await handler.Handle(connection, message);
+                }
+                catch (Exception e)
+                {
+                    Logger.Error($"Erro ao processar a mensagem com header {header}: {e}");
+                    _ = connection.Close();
+                }
+            }
+            else
+            {
+                Logger.Warning($"Nenhum handler encontrado para o header: {header}.");
+                _ = connection.Close();
+            }
+        }
+        else
+        {
+            Logger.Error($"ID de mensagem inválido recebido: {messageId}.");
+            _ = connection.Close();
+        }
+    }
+
+    private void InitializeHandlers()
+    {
+        messageHandlers[ClientHeaders.Ping] = new PingRequest();
+        messageHandlers[ClientHeaders.SignIn] = new SignInRequest();
+    }
 }
