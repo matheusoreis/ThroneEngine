@@ -7,7 +7,9 @@ using Throne.Server.Services;
 using Throne.Server.Websocket;
 using Throne.Server.Websocket.Core;
 using Throne.Server.Websocket.Core.Memory;
+using Throne.Shared.Constants;
 using Throne.Shared.Database;
+using Throne.Shared.VersionsChecker;
 
 namespace Throne.Server;
 
@@ -90,6 +92,11 @@ public class Startup(IConfiguration configuration)
         services.AddTransient<IDatabase, Database>();
         services.AddSingleton<IUserService, UserService>();
         services.AddSingleton<ITokenService, TokenService>();
+        services.AddTransient(provider => new VersionChecker
+            (
+                Constants.MajorVersion, Constants.MinorVersion, Constants.PatchVersion
+            )
+        );
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

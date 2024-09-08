@@ -9,7 +9,7 @@ public class WSConnection(WebSocket webSocket, int id, string ip)
     public WebSocket WebSocket { get; } = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
     public int Id { get; } = id;
     public string Ip { get; } = ip;
-    private WSHandler Handler { get; } = new();
+    private WsHandler Handler { get; } = new();
 
     public async Task Close()
     {

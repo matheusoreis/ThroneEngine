@@ -1,16 +1,32 @@
 using Npgsql;
 using Throne.Server.Websocket.Communication.Outgoing.Messages;
 using Throne.Server.Websocket.Communication.Protocol;
-using Throne.Shared.Constants;
+using Throne.Server.Websocket.Core;
 using Throne.Shared.Database;
 using Throne.Shared.Logger;
-using Throne.Shared.Password;
 using Throne.Shared.VersionsChecker;
+using BC = BCrypt.Net.BCrypt;
 
 namespace Throne.Server.Websocket.Communication.Incoming.Requests;
 
+internal class AccountInfo
+{
+    public int Id { get; init; }
+    public required string Password { get; init; }
+}
+
 public class SignInRequest : IIncoming
 {
+    private readonly IDatabase database;
+    private readonly VersionChecker versionChecker;
+
+    public SignInRequest()
+    {
+        IServiceProvider serviceProvider = ServiceLocator.GetServiceProvider();
+        database = serviceProvider.GetRequiredService<IDatabase>();
+        versionChecker = serviceProvider.GetRequiredService<VersionChecker>();
+    }
+
     public async Task Handle(WSConnection connection, ClientMessage clientMessage)
     {
         string email = clientMessage.GetString();
@@ -19,75 +35,51 @@ public class SignInRequest : IIncoming
         int minor = clientMessage.GetInt16();
         int revision = clientMessage.GetInt16();
 
-        VersionChecker versionChecker = new(Constants.MajorVersion, Constants.MinorVersion, Constants.PatchVersion);
-
         if (!versionChecker.Check(major, minor, revision))
         {
-            AlertData alertData = new()
-            {
-                Type = AlertType.Info,
-                Message = "Ops! a versão do seu cliente está desatualizada!"
-            };
-
-            AlertMessage alertMessage = new(alertData);
-
-            await alertMessage.SendTo(connection);
-
+            await SendAlert(connection, AlertType.Info, "Ops! a versão do seu cliente está desatualizada!");
             return;
         }
 
-        Database database = new Database();
-
         try
         {
-            string emailExistsQuery = "SELECT check_email_exists(@p_email)";
-            NpgsqlParameter[] emailExistsParameters = new[] { new NpgsqlParameter("@p_email", email) };
+            const string checkEmailQuery = "SELECT check_email_exists(@p_email)";
+            var emailExistsParameters = new[]
+            {
+                new NpgsqlParameter("@p_email", email)
+            };
 
-            bool emailExists = await database.ExecuteFunction<bool>(emailExistsQuery, emailExistsParameters);
-
+            bool emailExists = await database.ExecuteFunction<bool>(checkEmailQuery, emailExistsParameters);
             if (emailExists)
             {
-                string getHashedPasswordQuery = "SELECT password FROM accounts WHERE email = @p_email";
-                NpgsqlParameter[] getHashedPasswordParameters = new[] { new NpgsqlParameter("@p_email", email) };
-                string? hashedPassword =
-                    await database.ExecuteFunction<string>(getHashedPasswordQuery, getHashedPasswordParameters);
-
-                if (hashedPassword != null && Password.Verify(password, hashedPassword))
+                const string getPasswordQuery = "SELECT id, password FROM accounts WHERE email = @p_email";
+                var passwordParameters = new[]
                 {
-                    AlertData alertData = new()
-                    {
-                        Type = AlertType.Info,
-                        Message = "Login bem-sucedido!"
-                    };
+                    new NpgsqlParameter("@p_email", email)
+                };
 
-                    AlertMessage alertMessage = new(alertData);
+                List<AccountInfo> accountInfos = await database.RunQuery(getPasswordQuery, reader => new AccountInfo
+                {
+                    Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Password = reader.GetString(reader.GetOrdinal("password"))
+                }, passwordParameters);
 
-                    await alertMessage.SendTo(connection);
+                var accountInfo = accountInfos.FirstOrDefault();
+
+                if (accountInfo != null && BC.Verify(password, accountInfo.Password))
+                {
+                    await SendAlert(connection, AlertType.Info, "Login bem-sucedido!");
+                    var signInMessage = new SignInMessage(accountInfo.Id);
+                    await signInMessage.SendTo(connection);
                 }
                 else
                 {
-                    AlertData alertData = new()
-                    {
-                        Type = AlertType.Error,
-                        Message = "Senha incorreta!"
-                    };
-
-                    AlertMessage alertMessage = new(alertData);
-
-                    await alertMessage.SendTo(connection);
+                    await SendAlert(connection, AlertType.Warn, "Senha incorreta!");
                 }
             }
             else
             {
-                AlertData alertData = new()
-                {
-                    Type = AlertType.Warn,
-                    Message = "E-mail não encontrado!"
-                };
-
-                AlertMessage alertMessage = new(alertData);
-
-                await alertMessage.SendTo(connection);
+                await SendAlert(connection, AlertType.Warn, "E-mail não encontrado!");
             }
         }
         catch (Exception ex)
@@ -99,4 +91,17 @@ public class SignInRequest : IIncoming
             await database.CloseConnection();
         }
     }
+    
+    private static async Task SendAlert(WSConnection connection, AlertType type, string message)
+    {
+        AlertData alertData = new AlertData
+        {
+            Type = type,
+            Message = message
+        };
+
+        AlertMessage alertMessage = new AlertMessage(alertData);
+        await alertMessage.SendTo(connection);
+    }
 }
+

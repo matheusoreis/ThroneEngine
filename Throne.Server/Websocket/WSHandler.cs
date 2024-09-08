@@ -6,23 +6,17 @@ using Throne.Shared.Logger;
 
 namespace Throne.Server.Websocket;
 
-public class WSHandler
+public class WsHandler
 {
     private readonly Dictionary<ClientHeaders, IIncoming> messageHandlers = [];
 
-    public WSHandler()
+    public WsHandler()
     {
         InitializeHandlers();
     }
 
     public async Task ProcessMessage(WSConnection connection, ClientMessage message)
     {
-        if (connection == null || message == null)
-        {
-            Logger.Warning("Conexão ou mensagem nula recebida ao tentar processar a mensagem.");
-            return;
-        }
-
         int messageId = message.GetId();
 
         if (Enum.IsDefined(typeof(ClientHeaders), messageId))
@@ -58,5 +52,6 @@ public class WSHandler
     {
         messageHandlers[ClientHeaders.Ping] = new PingRequest();
         messageHandlers[ClientHeaders.SignIn] = new SignInRequest();
+        messageHandlers[ClientHeaders.SignUp] = new SignUpRequest();
     }
 }

@@ -1,4 +1,4 @@
-namespace Throne.Server.Communication.Incoming.Requests;
+namespace Throne.Server.Websocket.Communication.Incoming.Requests;
 
 public class DeleteCharRequest
 {

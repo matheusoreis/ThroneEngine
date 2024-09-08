@@ -4,16 +4,12 @@ public enum ServerHeaders
 {
   Pong,
   Alert,
-  AccessAccountSuccess,
-  CreateAccountSuccess,
+  SignInSuccess,
+  SignUpSuccess,
   DeleteAccountSuccess,
   AccountRecovery,
-  CharacterList,
-  CharacterCreated,
-  CharacterDeleted,
-  CharacterSelected,
-  CharacterSold,
-  CharacterBought,
-  AvailableForSale,
-  PurchaseConfirmed
+  CharList,
+  CharCreated,
+  CharDeleted,
+  CharSelected,
 }

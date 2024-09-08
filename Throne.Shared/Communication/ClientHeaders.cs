@@ -4,15 +4,12 @@ public enum ClientHeaders
 {
   Ping,
   SignIn,
+  SignUp,
   CreateAccount,
   DeleteAccount,
   RecoverAccount,
-  ListCharacters,
-  CreateCharacter,
-  DeleteCharacter,
-  SelectCharacter,
-  SellCharacter,
-  BuyCharacter,
-  CharactersForSale,
-  ConfirmPurchase
+  CharList,
+  CreateChar,
+  DeleteChar,
+  SelectChar,
 }

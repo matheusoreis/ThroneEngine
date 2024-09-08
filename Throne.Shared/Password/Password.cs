@@ -2,7 +2,7 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace Throne.Shared.Password;
 
-public class Password
+public static class Password
 {
   public static string Hash(string password)
   {
