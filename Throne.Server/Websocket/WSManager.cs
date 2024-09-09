@@ -20,7 +20,7 @@ public class WsManager
 
     public async Task HandleWebSocketConnection(WebSocket webSocket, string ip)
     {
-        List<byte>? receivedData = [];
+        List<byte> receivedData = [];
         CancellationTokenSource cancellationTokenSource = new();
         CancellationToken cancellationToken = cancellationTokenSource.Token;
 
@@ -29,7 +29,7 @@ public class WsManager
             Logger.Info($"Nova conexão WebSocket aberta com IP: {ip}");
             await WebSocketOpen(webSocket, ip);
 
-            byte[]? buffer = new byte[1024 * 4];
+            byte[] buffer = new byte[1024 * 4];
             while (webSocket.State == WebSocketState.Open)
             {
                 ArraySegment<byte> segment = new(buffer);
@@ -78,7 +78,7 @@ public class WsManager
         }
     }
 
-    public async Task WebSocketOpen(WebSocket webSocket, string ip)
+    private async Task WebSocketOpen(WebSocket webSocket, string ip)
     {
         int? connectionId = connections.GetFirstEmptySlot();
 
@@ -89,12 +89,12 @@ public class WsManager
             return;
         }
 
-        WsConnection? connection = new(webSocket, connectionId.Value, ip);
+        WsConnection connection = new(webSocket, connectionId.Value, ip);
         connections.Add(connection);
         Logger.Info($"Conexão estabelecida com {ip}, ID da conexão: {connectionId.Value}");
     }
 
-    public async Task WebSocketMessage(WebSocket webSocket, byte[] message)
+    private async Task WebSocketMessage(WebSocket webSocket, byte[] message)
     {
         WsConnection? connection = GetConnectionBySocket(webSocket);
 
@@ -114,7 +114,7 @@ public class WsManager
     }
 
 
-    public async Task WebSocketClose(WebSocket webSocket)
+    private async Task WebSocketClose(WebSocket webSocket)
     {
         try
         {
@@ -137,7 +137,7 @@ public class WsManager
     }
 
 
-    private async Task HandleFullServer(WebSocket webSocket, string ip)
+    private static async Task HandleFullServer(WebSocket webSocket, string ip)
     {
         Logger.Info($"Servidor está cheio, desconectando o IP: {ip}");
 
@@ -172,25 +172,22 @@ public class WsManager
                 catch (WebSocketException ex)
                 {
                     Logger.Error(
-                        $"WebSocketException ao fechar a conexão com IP {connection.Ip}, ID da conexão {connection.Id}: {ex.Message}");
+                        $"WebSocketException ao fechar a conexão com IP {connection.Ip}, ID da conexão {connection.Id}: {ex.Message}"
+                    );
                 }
                 catch (Exception ex)
                 {
                     Logger.Error(
-                        $"Erro ao fechar a conexão com IP {connection.Ip}, ID da conexão {connection.Id}: {ex.Message}");
+                        $"Erro ao fechar a conexão com IP {connection.Ip}, ID da conexão {connection.Id}: {ex.Message}"
+                    );
                 }
         }
     }
 
     private WsConnection? GetConnectionBySocket(WebSocket webSocket)
     {
-        foreach (int index in connections.GetFilledSlots())
-        {
-            WsConnection? connection = connections.Get(index);
-
-            if (connection?.WebSocket == webSocket) return connection;
-        }
-
-        return null;
+        return connections.GetFilledSlots().Select(index => connections.Get(index)).FirstOrDefault(
+            connection => connection?.WebSocket == webSocket
+        );
     }
 }
