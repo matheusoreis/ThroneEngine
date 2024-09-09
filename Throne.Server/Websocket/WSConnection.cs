@@ -4,7 +4,7 @@ using Throne.Shared.Logger;
 
 namespace Throne.Server.Websocket;
 
-public class WSConnection(WebSocket webSocket, int id, string ip)
+public class WsConnection(WebSocket webSocket, int id, string ip)
 {
     public WebSocket WebSocket { get; } = webSocket ?? throw new ArgumentNullException(nameof(webSocket));
     public int Id { get; } = id;

@@ -4,5 +4,5 @@ namespace Throne.Server.Websocket.Core.Memory;
 
 public interface IMemoryManager
 {
-    Slots<WSConnection> Connections { get; }
+    Slots<WsConnection> Connections { get; }
 }

@@ -43,7 +43,7 @@ public class ServerMessage : OutgoingMessage
         return buffer.GetBuffer();
     }
 
-    public async Task SendTo(WSConnection connection)
+    public async Task SendTo(WsConnection connection)
     {
         await DataTo(connection, this);
     }
@@ -53,7 +53,7 @@ public class ServerMessage : OutgoingMessage
         await DataToAll(this);
     }
 
-    public async Task SendToAllExcept(WSConnection exceptConnection)
+    public async Task SendToAllExcept(WsConnection exceptConnection)
     {
         await DataToAllExcept(exceptConnection, this);
     }

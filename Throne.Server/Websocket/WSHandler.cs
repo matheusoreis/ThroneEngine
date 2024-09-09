@@ -15,7 +15,7 @@ public class WsHandler
         InitializeHandlers();
     }
 
-    public async Task ProcessMessage(WSConnection connection, ClientMessage message)
+    public async Task ProcessMessage(WsConnection connection, ClientMessage message)
     {
         int messageId = message.GetId();
 

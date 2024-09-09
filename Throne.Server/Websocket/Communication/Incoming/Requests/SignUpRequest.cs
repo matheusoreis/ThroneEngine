@@ -20,7 +20,7 @@ public class SignUpRequest : IIncoming
         versionChecker = serviceProvider.GetRequiredService<VersionChecker>();
     }
 
-    public async Task Handle(WSConnection connection, ClientMessage clientMessage)
+    public async Task Handle(WsConnection connection, ClientMessage clientMessage)
     {
         string email = clientMessage.GetString();
         string password = clientMessage.GetString();

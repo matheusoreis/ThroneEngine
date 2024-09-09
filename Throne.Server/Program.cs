@@ -14,7 +14,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddSingleton<IMemoryManager, MemoryManager>();
-builder.Services.AddSingleton<WSManager>();
+builder.Services.AddSingleton<WsManager>();
 builder.Services.AddTransient<IDatabase, Database>();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();

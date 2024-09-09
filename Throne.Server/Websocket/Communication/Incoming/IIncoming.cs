@@ -4,5 +4,5 @@ namespace Throne.Server.Websocket.Communication.Incoming;
 
 public interface IIncoming
 {
-    public Task Handle(WSConnection connection, ClientMessage clientMessage);
+    public Task Handle(WsConnection connection, ClientMessage clientMessage);
 }

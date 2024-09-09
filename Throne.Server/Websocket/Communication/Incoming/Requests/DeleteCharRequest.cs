@@ -16,7 +16,7 @@ public class DeleteCharRequest : IIncoming
         database = serviceProvider.GetRequiredService<IDatabase>();
     }
     
-    public async Task Handle(WSConnection connection, ClientMessage clientMessage)
+    public async Task Handle(WsConnection connection, ClientMessage clientMessage)
     {
         int characterId = clientMessage.GetInt32();
         int accountId = clientMessage.GetInt32();

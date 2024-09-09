@@ -14,7 +14,7 @@ public static class WebSocketConfiguration
                 {
                     var webSocket = await context.WebSockets.AcceptWebSocketAsync();
                     var ip = context.Connection.RemoteIpAddress?.ToString() ?? "Unknown";
-                    var websocketManager = context.RequestServices.GetRequiredService<WSManager>();
+                    var websocketManager = context.RequestServices.GetRequiredService<WsManager>();
                     await websocketManager.HandleWebSocketConnection(webSocket, ip);
                 }
                 else

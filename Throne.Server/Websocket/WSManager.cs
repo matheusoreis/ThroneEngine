@@ -7,11 +7,11 @@ using Throne.Shared.Slots;
 
 namespace Throne.Server.Websocket;
 
-public class WSManager
+public class WsManager
 {
-    private readonly Slots<WSConnection> connections;
+    private readonly Slots<WsConnection> connections;
 
-    public WSManager()
+    public WsManager()
     {
         IServiceProvider serviceProvider = ServiceLocator.GetServiceProvider();
         IMemoryManager memoryManager = serviceProvider.GetRequiredService<IMemoryManager>();
@@ -89,14 +89,14 @@ public class WSManager
             return;
         }
 
-        WSConnection? connection = new(webSocket, connectionId.Value, ip);
+        WsConnection? connection = new(webSocket, connectionId.Value, ip);
         connections.Add(connection);
         Logger.Info($"Conexão estabelecida com {ip}, ID da conexão: {connectionId.Value}");
     }
 
     public async Task WebSocketMessage(WebSocket webSocket, byte[] message)
     {
-        WSConnection? connection = GetConnectionBySocket(webSocket);
+        WsConnection? connection = GetConnectionBySocket(webSocket);
 
         if (connection == null) return;
 
@@ -118,7 +118,7 @@ public class WSManager
     {
         try
         {
-            WSConnection? connection = GetConnectionBySocket(webSocket);
+            WsConnection? connection = GetConnectionBySocket(webSocket);
 
             if (connection != null)
             {
@@ -141,7 +141,7 @@ public class WSManager
     {
         Logger.Info($"Servidor está cheio, desconectando o IP: {ip}");
 
-        WSConnection webSocketConnection = new(webSocket, -1, ip);
+        WsConnection webSocketConnection = new(webSocket, -1, ip);
 
         AlertData alertData = new()
         {
@@ -157,7 +157,7 @@ public class WSManager
 
     private async Task CleanupConnection(WebSocket webSocket)
     {
-        WSConnection? connection = GetConnectionBySocket(webSocket);
+        WsConnection? connection = GetConnectionBySocket(webSocket);
 
         if (connection != null)
         {
@@ -182,11 +182,11 @@ public class WSManager
         }
     }
 
-    private WSConnection? GetConnectionBySocket(WebSocket webSocket)
+    private WsConnection? GetConnectionBySocket(WebSocket webSocket)
     {
         foreach (int index in connections.GetFilledSlots())
         {
-            WSConnection? connection = connections.Get(index);
+            WsConnection? connection = connections.Get(index);
 
             if (connection?.WebSocket == webSocket) return connection;
         }

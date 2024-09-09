@@ -18,7 +18,7 @@ public class CharListRequest : IIncoming
         database = serviceProvider.GetRequiredService<IDatabase>();
     }
 
-    public async Task Handle(WSConnection connection, ClientMessage clientMessage)
+    public async Task Handle(WsConnection connection, ClientMessage clientMessage)
     {
         int accountId = clientMessage.GetInt32();
 
@@ -63,7 +63,7 @@ public class CharListRequest : IIncoming
         }
     }
 
-    private static async Task SendAlert(WSConnection connection, AlertType type, string message)
+    private static async Task SendAlert(WsConnection connection, AlertType type, string message)
     {
         AlertData alertData = new()
         {

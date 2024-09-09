@@ -27,7 +27,7 @@ public class SignInRequest : IIncoming
         versionChecker = serviceProvider.GetRequiredService<VersionChecker>();
     }
 
-    public async Task Handle(WSConnection connection, ClientMessage clientMessage)
+    public async Task Handle(WsConnection connection, ClientMessage clientMessage)
     {
         string email = clientMessage.GetString();
         string password = clientMessage.GetString();
@@ -92,7 +92,7 @@ public class SignInRequest : IIncoming
         }
     }
     
-    private static async Task SendAlert(WSConnection connection, AlertType type, string message)
+    private static async Task SendAlert(WsConnection connection, AlertType type, string message)
     {
         AlertData alertData = new()
         {

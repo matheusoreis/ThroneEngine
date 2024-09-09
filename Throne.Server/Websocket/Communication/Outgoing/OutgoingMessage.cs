@@ -9,7 +9,7 @@ namespace Throne.Server.Websocket.Communication.Outgoing;
 
 public abstract class OutgoingMessage
 {
-    private readonly Slots<WSConnection> connections;
+    private readonly Slots<WsConnection> connections;
 
     protected OutgoingMessage()
     {
@@ -18,7 +18,7 @@ public abstract class OutgoingMessage
         connections = memoryManager.Connections;
     }
 
-    protected static async Task DataTo(WSConnection connection, ServerMessage serverMessage)
+    protected static async Task DataTo(WsConnection connection, ServerMessage serverMessage)
     {
         try
         {
@@ -36,7 +36,7 @@ public abstract class OutgoingMessage
     {
         foreach (int index in connections.GetFilledSlots())
         {
-            WSConnection? connection = connections.Get(index);
+            WsConnection? connection = connections.Get(index);
 
             if (connection?.WebSocket != null)
                 try
@@ -50,11 +50,11 @@ public abstract class OutgoingMessage
         }
     }
 
-    protected async Task DataToAllExcept(WSConnection exceptConnection, ServerMessage message)
+    protected async Task DataToAllExcept(WsConnection exceptConnection, ServerMessage message)
     {
         foreach (int index in connections.GetFilledSlots())
         {
-            WSConnection? connection = connections.Get(index);
+            WsConnection? connection = connections.Get(index);
             if (connection?.WebSocket != null && !Equals(connection, exceptConnection))
                 try
                 {
