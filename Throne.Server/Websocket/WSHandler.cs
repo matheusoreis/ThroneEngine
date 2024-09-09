@@ -54,5 +54,6 @@ public class WsHandler
         messageHandlers[ClientHeaders.SignIn] = new SignInRequest();
         messageHandlers[ClientHeaders.SignUp] = new SignUpRequest();
         messageHandlers[ClientHeaders.CharList] = new CharListRequest();
+        messageHandlers[ClientHeaders.DeleteChar] = new DeleteCharRequest();
     }
 }

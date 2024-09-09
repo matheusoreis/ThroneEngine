@@ -14,7 +14,9 @@ public class CharListMessage : ServerMessage
         foreach (CharacterData character in chars)
         {
             PutInt32(character.Id);
+            PutInt32(character.AccountId);
             PutString(character.Name);
+            PutString(character.Gender);
         }
     }
 }

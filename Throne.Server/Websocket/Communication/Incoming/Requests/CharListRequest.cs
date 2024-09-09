@@ -24,7 +24,7 @@ public class CharListRequest : IIncoming
 
         try
         {
-            const string getCharactersQuery = "SELECT * FROM account_characters WHERE account_id = @p_account_id";
+            const string getCharactersQuery = "SELECT id, name, color, gender, account_id FROM character_list WHERE account_id = @p_account_id";
             NpgsqlParameter[] parameters =
             [
                 new NpgsqlParameter("@p_account_id", accountId)
@@ -32,14 +32,13 @@ public class CharListRequest : IIncoming
 
             List<CharacterData> characters = await database.RunQuery(getCharactersQuery, reader => new CharacterData
             {
-                Id = reader.GetInt32(reader.GetOrdinal("character_id")),
-                Name = reader.GetString(reader.GetOrdinal("character_name")),
-                Color = reader.GetString(reader.GetOrdinal("character_color")),
-                GenderId = reader.GetInt32(reader.GetOrdinal("gender_id")),
-                CharCount = reader.GetInt32(reader.GetOrdinal("account_character_count"))
+                Id = reader.GetInt32(reader.GetOrdinal("id")),
+                AccountId = reader.GetInt32(reader.GetOrdinal("account_id")),
+                Name = reader.GetString(reader.GetOrdinal("name")),
+                Color = reader.GetString(reader.GetOrdinal("color")),
+                Gender = reader.GetString(reader.GetOrdinal("gender")),
             }, parameters);
 
-            // Consulta para obter a quantidade total de personagens
             const string getCharacterCountQuery = "SELECT character_count FROM accounts WHERE id = @p_account_id";
             
             List<int> characterCountList = await database.RunQuery<int>(
