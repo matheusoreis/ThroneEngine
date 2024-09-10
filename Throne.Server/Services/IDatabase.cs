@@ -1,7 +1,7 @@
 using System.Data;
 using Npgsql;
 
-namespace Throne.Shared.Database;
+namespace Throne.Server.Services;
 
 public interface IDatabase
 {

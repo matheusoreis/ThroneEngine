@@ -1,8 +1,8 @@
 using Npgsql;
+using Throne.Server.Services;
 using Throne.Server.Websocket.Communication.Outgoing.Messages;
 using Throne.Server.Websocket.Communication.Protocol;
 using Throne.Server.Websocket.Core;
-using Throne.Shared.Database;
 using Throne.Shared.VersionsChecker;
 using BC = BCrypt.Net.BCrypt;
 

@@ -1,10 +1,9 @@
 using Throne.Server.Configurations;
 using Throne.Server.Services;
+using Throne.Server.Utils;
 using Throne.Server.Websocket;
 using Throne.Server.Websocket.Core;
 using Throne.Server.Websocket.Core.Memory;
-using Throne.Shared.Constants;
-using Throne.Shared.Database;
 using Throne.Shared.VersionsChecker;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -14,7 +13,6 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddSwaggerDocumentation();
 builder.Services.AddSingleton<IMemoryManager, MemoryManager>();
-builder.Services.AddSingleton<WsManager>();
 builder.Services.AddTransient<IDatabase, Database>();
 builder.Services.AddSingleton<IUserService, UserService>();
 builder.Services.AddSingleton<ITokenService, TokenService>();

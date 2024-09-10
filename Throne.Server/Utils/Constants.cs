@@ -1,6 +1,6 @@
-namespace Throne.Shared.Constants;
+namespace Throne.Server.Utils;
 
-public class Constants
+public abstract class Constants
 {
   public const int MajorVersion = 1;
   public const int MinorVersion = 0;

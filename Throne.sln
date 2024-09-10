@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Throne.Shared", "Throne.Shared\Throne.Shared.csproj", "{C0C83996-1805-49A9-B250-67D65E58CAD0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Throne.Server", "Throne.Server\Throne.Server.csproj", "{D5DC8C3E-3EBC-4B9A-AC45-8BC30A79B108}"
 EndProject
 Global
@@ -13,10 +11,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{C0C83996-1805-49A9-B250-67D65E58CAD0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C0C83996-1805-49A9-B250-67D65E58CAD0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C0C83996-1805-49A9-B250-67D65E58CAD0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C0C83996-1805-49A9-B250-67D65E58CAD0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D5DC8C3E-3EBC-4B9A-AC45-8BC30A79B108}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D5DC8C3E-3EBC-4B9A-AC45-8BC30A79B108}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5DC8C3E-3EBC-4B9A-AC45-8BC30A79B108}.Release|Any CPU.ActiveCfg = Release|Any CPU

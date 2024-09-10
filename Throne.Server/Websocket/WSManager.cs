@@ -1,9 +1,9 @@
 using System.Net.WebSockets;
+using Throne.Server.Services;
+using Throne.Server.Utils;
 using Throne.Server.Websocket.Communication.Outgoing.Messages;
 using Throne.Server.Websocket.Core;
 using Throne.Server.Websocket.Core.Memory;
-using Throne.Shared.Logger;
-using Throne.Shared.Slots;
 
 namespace Throne.Server.Websocket;
 

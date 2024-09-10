@@ -1,6 +1,6 @@
 using System.Net.WebSockets;
+using Throne.Server.Utils;
 using Throne.Server.Websocket.Communication.Protocol;
-using Throne.Shared.Logger;
 
 namespace Throne.Server.Websocket;
 

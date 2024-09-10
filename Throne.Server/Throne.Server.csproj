@@ -10,11 +10,14 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8"/>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8"/>
+        <PackageReference Include="Npgsql" Version="8.0.3" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3"/>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\Throne.Shared\Throne.Shared.csproj"/>
+      <Reference Include="BCrypt.Net-Next">
+        <HintPath>..\..\..\..\.nuget\packages\bcrypt.net-next\4.0.3\lib\net6.0\BCrypt.Net-Next.dll</HintPath>
+      </Reference>
     </ItemGroup>
 
 </Project>

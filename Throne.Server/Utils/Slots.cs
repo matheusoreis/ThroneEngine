@@ -1,12 +1,12 @@
-namespace Throne.Shared.Slots;
+namespace Throne.Server.Utils;
 
 public class Slots<T>(int size)
 {
-  private readonly List<T?> _slots = new(new T?[size]);
+  private readonly List<T?> slots = [..new T?[size]];
 
   private void CheckIndex(int index)
   {
-    if (index < 0 || index >= _slots.Count)
+    if (index < 0 || index >= slots.Count)
     {
       throw new ArgumentOutOfRangeException(nameof(index), $"Index out of range: {index}");
     }
@@ -15,14 +15,14 @@ public class Slots<T>(int size)
   public T? Get(int index)
   {
     CheckIndex(index);
-    return _slots[index];
+    return slots[index];
   }
 
   public IEnumerable<int> GetFilledSlots()
   {
-    for (int i = 0; i < _slots.Count; i++)
+    for (int i = 0; i < slots.Count; i++)
     {
-      if (_slots[i] != null)
+      if (slots[i] != null)
       {
         yield return i;
       }
@@ -31,9 +31,9 @@ public class Slots<T>(int size)
 
   public IEnumerable<int> GetEmptySlots()
   {
-    for (int i = 0; i < _slots.Count; i++)
+    for (int i = 0; i < slots.Count; i++)
     {
-      if (_slots[i] == null)
+      if (slots[i] == null)
       {
         yield return i;
       }
@@ -43,31 +43,29 @@ public class Slots<T>(int size)
   public void Remove(int index)
   {
     CheckIndex(index);
-    _slots[index] = default;
+    slots[index] = default;
   }
 
   public int Add(T value)
   {
-    for (int i = 0; i < _slots.Count; i++)
+    for (int i = 0; i < slots.Count; i++)
     {
-      if (_slots[i] == null)
-      {
-        _slots[i] = value;
-        return i;
-      }
+      if (slots[i] != null) continue;
+      slots[i] = value;
+      return i;
     }
     throw new InvalidOperationException("No empty slots available");
   }
 
   public int? GetFirstEmptySlot()
   {
-    int index = _slots.IndexOf(default);
+    int index = slots.IndexOf(default);
     return index != -1 ? index : (int?)null;
   }
 
   public void Update(int index, T value)
   {
     CheckIndex(index);
-    _slots[index] = value;
+    slots[index] = value;
   }
 }

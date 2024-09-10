@@ -1,8 +1,8 @@
+using Throne.Server.Utils;
 using Throne.Server.Websocket.Communication.Incoming;
 using Throne.Server.Websocket.Communication.Incoming.Requests;
 using Throne.Server.Websocket.Communication.Protocol;
 using Throne.Shared.Communication;
-using Throne.Shared.Logger;
 
 namespace Throne.Server.Websocket;
 

@@ -4,7 +4,6 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
 using Throne.Server.Models;
-using Throne.Shared.Database;
 
 namespace Throne.Server.Services;
 
@@ -31,10 +30,7 @@ public class TokenService(IConfiguration configuration, IDatabase database) : IT
             key, SecurityAlgorithms.HmacSha256
         );
         
-        List<Claim> claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.Name, user.Email ?? string.Empty)
-        };
+        List<Claim> claims = [new Claim(ClaimTypes.Name, user.Email ?? string.Empty)];
 
         if (token?.IsVip == true)
         {

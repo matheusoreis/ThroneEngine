@@ -1,10 +1,10 @@
 using Npgsql;
+using Throne.Server.Services;
+using Throne.Server.Utils;
 using Throne.Server.Websocket.Communication.Outgoing.Messages;
 using Throne.Server.Websocket.Communication.Protocol;
 using Throne.Server.Websocket.Core;
 using Throne.Server.Websocket.Core.Data;
-using Throne.Shared.Database;
-using Throne.Shared.Logger;
 
 namespace Throne.Server.Websocket.Communication.Incoming.Requests;
 
