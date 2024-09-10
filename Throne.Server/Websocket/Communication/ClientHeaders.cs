@@ -1,4 +1,4 @@
-namespace Throne.Shared.Communication;
+namespace Throne.Server.Websocket.Communication;
 
 public enum ClientHeaders
 {
